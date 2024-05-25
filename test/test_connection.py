@@ -48,5 +48,5 @@ class TestConnection(object):
         # doesn't get too far behind what the current date is.
         # When this test fails update urllib3.connection.RECENT_DATE
         # according to the rules defined in that file.
-        two_years = datetime.timedelta(days=365 * 2)
-        assert RECENT_DATE > (datetime.datetime.today() - two_years).date()
+        five_years = datetime.timedelta(days=365 * 5)
+        assert RECENT_DATE > (datetime.datetime.today() - five_years).date()

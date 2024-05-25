@@ -1,0 +1,60 @@
+name: H6060 Experiment 1 - urllib3
+
+on:
+  push:
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  security-events: write
+
+jobs:
+  build-application:
+    name: Build application
+    runs-on: ubuntu-latest
+    steps:
+        # Branched from tag 1.26.5
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.7
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: 3.7
+
+      - name: Install Pip Dependencies
+        uses: seansmith39/H6060-Experiment-Resources/.github/actions/python/install-pip-dependencies@main
+        with:
+          extra-pip-packages: wheel nox
+
+      - name: Build And Upload Python Package
+        uses: seansmith39/H6060-Experiment-Resources/.github/actions/python/python-build-upload@main
+        with:
+          build-command: python -m setup sdist bdist_wheel
+          build-directory: dist
+
+      - name: Run Tests
+        run: ./ci/run_tests.sh
+        env:
+          PYTHON_VERSION: 3.7
+
+      - name: Upload Coverage XML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          if-no-files-found: error
+
+  python-scanning:
+    name: Run SCA and SAST Python Scanning Workflow
+    uses: seansmith39/H6060-Experiment-Resources/.github/workflows/experiment-1-python.yml@main
+    needs: build-application
+    secrets: inherit
+    with:
+      project-name: H6060-Python-urllib3
+      sca-file-to-scan: docs/requirements.txt
+      eclipse-steady-workspace-token: 29D7403D7ABAD78F0901BAFACD403083
+      eclipse-steady-project-source-directories: src
+      sast-deepsource-enabled: false
