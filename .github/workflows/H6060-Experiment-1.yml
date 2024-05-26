@@ -49,7 +49,7 @@ jobs:
 
   python-scanning:
     name: Run SCA and SAST Python Scanning Workflow
-    uses: seansmith39/H6060-Experiment-Resources/.github/workflows/experiment-1-python.yml@Update_Deepsource_Workflow
+    uses: seansmith39/H6060-Experiment-Resources/.github/workflows/experiment-1-python.yml@main
     needs: build-application
     secrets: inherit
     with:
