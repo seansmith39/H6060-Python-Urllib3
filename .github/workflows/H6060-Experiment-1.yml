@@ -2,6 +2,9 @@ name: H6060 Experiment 1 - urllib3
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
 
 defaults:
   run:
