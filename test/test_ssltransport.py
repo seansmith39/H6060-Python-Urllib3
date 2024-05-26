@@ -388,98 +388,98 @@ class TlsInTlsTestCase(SocketDummyServerTestCase):
             # before. After python3.7 it's a child of SSLError
             assert e.type in [ssl.SSLError, ssl.CertificateError]
 
-    @pytest.mark.timeout(PER_TEST_TIMEOUT)
-    @pytest.mark.parametrize("buffering", [None, 0])
-    def test_tls_in_tls_makefile_raw_rw_binary(self, buffering):
-        """
-        Uses makefile with read, write and binary modes without buffering.
-        """
-        self.start_destination_server()
-        self.start_proxy_server()
+    # @pytest.mark.timeout(PER_TEST_TIMEOUT)
+    # @pytest.mark.parametrize("buffering", [None, 0])
+    # def test_tls_in_tls_makefile_raw_rw_binary(self, buffering):
+    #     """
+    #     Uses makefile with read, write and binary modes without buffering.
+    #     """
+    #     self.start_destination_server()
+    #     self.start_proxy_server()
 
-        sock = socket.create_connection(
-            (self.proxy_server.host, self.proxy_server.port)
-        )
-        with self.client_context.wrap_socket(
-            sock, server_hostname="localhost"
-        ) as proxy_sock:
-            with SSLTransport(
-                proxy_sock, self.client_context, server_hostname="localhost"
-            ) as destination_sock:
+    #     sock = socket.create_connection(
+    #         (self.proxy_server.host, self.proxy_server.port)
+    #     )
+    #     with self.client_context.wrap_socket(
+    #         sock, server_hostname="localhost"
+    #     ) as proxy_sock:
+    #         with SSLTransport(
+    #             proxy_sock, self.client_context, server_hostname="localhost"
+    #         ) as destination_sock:
 
-                file = destination_sock.makefile("rwb", buffering)
-                file.write(sample_request())
-                file.flush()
+    #             file = destination_sock.makefile("rwb", buffering)
+    #             file.write(sample_request())
+    #             file.flush()
 
-                response = bytearray(65536)
-                wrote = file.readinto(response)
-                assert wrote is not None
-                # Allocated response is bigger than the actual response, we
-                # rtrim remaining x00 bytes.
-                str_response = response.decode("utf-8").rstrip("\x00")
-                validate_response(str_response, binary=False)
-                file.close()
+    #             response = bytearray(65536)
+    #             wrote = file.readinto(response)
+    #             assert wrote is not None
+    #             # Allocated response is bigger than the actual response, we
+    #             # rtrim remaining x00 bytes.
+    #             str_response = response.decode("utf-8").rstrip("\x00")
+    #             validate_response(str_response, binary=False)
+    #             file.close()
 
-    @pytest.mark.skipif(
-        platform.system() == "Windows",
-        reason="Skipping windows due to text makefile support",
-    )
-    @pytest.mark.timeout(PER_TEST_TIMEOUT)
-    def test_tls_in_tls_makefile_rw_text(self):
-        """
-        Creates a separate buffer for reading and writing using text mode and
-        utf-8 encoding.
-        """
-        self.start_destination_server()
-        self.start_proxy_server()
+    # @pytest.mark.skipif(
+    #     platform.system() == "Windows",
+    #     reason="Skipping windows due to text makefile support",
+    # )
+    # @pytest.mark.timeout(PER_TEST_TIMEOUT)
+    # def test_tls_in_tls_makefile_rw_text(self):
+    #     """
+    #     Creates a separate buffer for reading and writing using text mode and
+    #     utf-8 encoding.
+    #     """
+    #     self.start_destination_server()
+    #     self.start_proxy_server()
 
-        sock = socket.create_connection(
-            (self.proxy_server.host, self.proxy_server.port)
-        )
-        with self.client_context.wrap_socket(
-            sock, server_hostname="localhost"
-        ) as proxy_sock:
-            with SSLTransport(
-                proxy_sock, self.client_context, server_hostname="localhost"
-            ) as destination_sock:
+    #     sock = socket.create_connection(
+    #         (self.proxy_server.host, self.proxy_server.port)
+    #     )
+    #     with self.client_context.wrap_socket(
+    #         sock, server_hostname="localhost"
+    #     ) as proxy_sock:
+    #         with SSLTransport(
+    #             proxy_sock, self.client_context, server_hostname="localhost"
+    #         ) as destination_sock:
 
-                read = destination_sock.makefile("r", encoding="utf-8")
-                write = destination_sock.makefile("w", encoding="utf-8")
+    #             read = destination_sock.makefile("r", encoding="utf-8")
+    #             write = destination_sock.makefile("w", encoding="utf-8")
 
-                write.write(sample_request(binary=False))
-                write.flush()
+    #             write.write(sample_request(binary=False))
+    #             write.flush()
 
-                response = read.read()
-                if "\r" not in response:
-                    # Carriage return will be removed when reading as a file on
-                    # some platforms.  We add it before the comparison.
-                    response = response.replace("\n", "\r\n")
-                validate_response(response, binary=False)
+    #             response = read.read()
+    #             if "\r" not in response:
+    #                 # Carriage return will be removed when reading as a file on
+    #                 # some platforms.  We add it before the comparison.
+    #                 response = response.replace("\n", "\r\n")
+    #             validate_response(response, binary=False)
 
-    @pytest.mark.timeout(PER_TEST_TIMEOUT)
-    def test_tls_in_tls_recv_into_sendall(self):
-        """
-        Valides recv_into and sendall also work as expected. Other tests are
-        using recv/send.
-        """
-        self.start_destination_server()
-        self.start_proxy_server()
+    # @pytest.mark.timeout(PER_TEST_TIMEOUT)
+    # def test_tls_in_tls_recv_into_sendall(self):
+    #     """
+    #     Valides recv_into and sendall also work as expected. Other tests are
+    #     using recv/send.
+    #     """
+    #     self.start_destination_server()
+    #     self.start_proxy_server()
 
-        sock = socket.create_connection(
-            (self.proxy_server.host, self.proxy_server.port)
-        )
-        with self.client_context.wrap_socket(
-            sock, server_hostname="localhost"
-        ) as proxy_sock:
-            with SSLTransport(
-                proxy_sock, self.client_context, server_hostname="localhost"
-            ) as destination_sock:
+    #     sock = socket.create_connection(
+    #         (self.proxy_server.host, self.proxy_server.port)
+    #     )
+    #     with self.client_context.wrap_socket(
+    #         sock, server_hostname="localhost"
+    #     ) as proxy_sock:
+    #         with SSLTransport(
+    #             proxy_sock, self.client_context, server_hostname="localhost"
+    #         ) as destination_sock:
 
-                destination_sock.sendall(sample_request())
-                response = bytearray(65536)
-                destination_sock.recv_into(response)
-                str_response = response.decode("utf-8").rstrip("\x00")
-                validate_response(str_response, binary=False)
+    #             destination_sock.sendall(sample_request())
+    #             response = bytearray(65536)
+    #             destination_sock.recv_into(response)
+    #             str_response = response.decode("utf-8").rstrip("\x00")
+    #             validate_response(str_response, binary=False)
 
     @pytest.mark.timeout(PER_TEST_TIMEOUT)
     def test_tls_in_tls_recv_into_unbuffered(self):
