@@ -1,7 +1,7 @@
 name: H6060 Experiment 1 - urllib3
 
 on:
-  push:
+  workflow_dispatch:
 
 defaults:
   run:
