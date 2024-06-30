@@ -87,25 +87,34 @@ jobs:
       - name: Install Pip Dependencies
         uses: seansmith39/H6060-Experiment-Resources/.github/actions/python/install-pip-dependencies@main
         with:
-          extra-pip-packages: wheel nox
+          requirement-file-name: requirements.txt
+          extra-pip-packages: setuptools build
 
       - name: Build And Upload Python Package
         uses: seansmith39/H6060-Experiment-Resources/.github/actions/python/python-build-upload@main
         with:
-          build-command: python -m setup sdist bdist_wheel
+          build-command: python -m build
           build-directory: dist
 
       - name: Run Tests
+        if: ${{ inputs.sast-deepsource-enabled == true }}
         run: ./ci/run_tests.sh
         env:
           PYTHON_VERSION: 3.7
 
       - name: Upload Coverage XML Report
+        if: ${{ inputs.sast-deepsource-enabled == true }}
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage.xml
           if-no-files-found: error
+
+      - name: Create Pip Dependency Tree
+        uses: seansmith39/H6060-Experiment-Resources/.github/actions/python/pip-dependency-tree@main
+
+      - name: Create CycloneDX SBOM
+        uses: seansmith39/H6060-Experiment-Resources/.github/actions/python/python-sbom@main
 
   python-scanning:
     name: Run SCA and SAST Python Scanning Workflow
